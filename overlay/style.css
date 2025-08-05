@@ -1,0 +1,55 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #1a1a1a;
+    color: #fff;
+    margin: 0;
+    padding: 20px;
+}
+
+#agent-status {
+    font-size: 24px;
+    font-weight: bold;
+    color: #4CAF50;
+    margin-bottom: 10px;
+}
+
+#current-task {
+    font-size: 18px;
+    color: #FFA500;
+    margin-bottom: 20px;
+}
+
+#img {
+    max-width: 800px;
+    max-height: 600px;
+    border: 2px solid #333;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+#scores {
+    background: #2a2a2a;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+#scores p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+#log {
+    background: #2a2a2a;
+    padding: 15px;
+    border-radius: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#log p {
+    margin: 5px 0;
+    padding: 5px;
+    background: #333;
+    border-radius: 4px;
+}

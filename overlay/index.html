@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head><link rel="stylesheet" href="style.css"></head>
+<body>
+  <div id="agent-status"></div>
+  <div id="current-task"></div>
+  <img id="img" src="../current.png" />
+  <div id="scores">
+    <p>Total Score: <span id="total"></span></p>
+    <p>Best Score: <span id="best"></span></p>
+    <p>Worst Score: <span id="worst"></span></p>
+    <p>Last Score: <span id="last"></span></p>
+  </div>
+  <div id="log"></div>
+  <script>
+    async function refresh() {
+      const res = await fetch('../results.json');
+      const data = await res.json();
+      document.getElementById('agent-status').textContent = data.agent_status;
+      document.getElementById('current-task').textContent = data.current_task;
+      document.getElementById('total').textContent = data.total_score;
+      document.getElementById('best').textContent = data.best_score;
+      document.getElementById('worst').textContent = data.worst_score;
+      document.getElementById('last').textContent = data.last_score;
+      document.getElementById('img').src = '../current.png?t=' + Date.now();
+      document.getElementById('log').innerHTML = data.history.map(r =>
+        `<p><b>${r.place}</b>: ${r.score}/5000 (${r.distance_km.toFixed(1)} km)</p>`
+      ).join('');
+    }
+    setInterval(refresh, 3000);
+  </script>
+</body>
+</html>
