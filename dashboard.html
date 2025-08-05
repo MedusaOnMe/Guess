@@ -594,14 +594,9 @@
                 currentlyTyping = false;
                 coordinatesDisplayed = false;
                 
-                // Add visual separator for new analysis (if there's existing content)
+                // Clear previous content for new analysis
                 const terminalContent = document.getElementById('terminalContent');
-                if (terminalContent.children.length > 0) {
-                    const separator = document.createElement('div');
-                    separator.className = 'analysis-separator';
-                    separator.innerHTML = '<div style="border-top: 1px solid rgba(193, 95, 60, 0.3); margin: 20px 0; text-align: center;"><span style="background: rgba(25, 25, 25, 0.8); padding: 0 15px; color: rgba(193, 95, 60, 0.7); font-size: 0.8em;">• NEW ANALYSIS •</span></div>';
-                    terminalContent.appendChild(separator);
-                }
+                terminalContent.innerHTML = '';
                 
                 thoughtCounter = 0;
             }

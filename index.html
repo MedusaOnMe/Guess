@@ -588,22 +588,23 @@
         let coordinatesDisplayed = false;
         
         function showThinkingText(text, analysisType) {
-            // Clear previous typing queue if new request started, but don't clear the terminal content
+            // STOP EVERYTHING if new request started
             if (analysisType === 'first') {
                 typingQueue = [];
                 currentlyTyping = false;
                 coordinatesDisplayed = false;
                 
-                // Add visual separator for new analysis (if there's existing content)
+                // Clear previous content for new analysis
                 const terminalContent = document.getElementById('terminalContent');
-                if (terminalContent.children.length > 0) {
-                    const separator = document.createElement('div');
-                    separator.className = 'analysis-separator';
-                    separator.innerHTML = '<div style="border-top: 1px solid rgba(193, 95, 60, 0.3); margin: 20px 0; text-align: center;"><span style="background: rgba(25, 25, 25, 0.8); padding: 0 15px; color: rgba(193, 95, 60, 0.7); font-size: 0.8em;">• NEW ANALYSIS •</span></div>';
-                    terminalContent.appendChild(separator);
-                }
+                terminalContent.innerHTML = '';
                 
                 thoughtCounter = 0;
+            }
+            
+            // If something is already typing, STOP IT and start fresh
+            if (currentlyTyping && analysisType === 'first') {
+                currentlyTyping = false;
+                typingQueue = [];
             }
             
             typingQueue.push({text, analysisType});
@@ -620,8 +621,10 @@
                 return;
             }
             
-            // Prevent multiple simultaneous typing sessions
+            // If already typing, wait and retry
             if (currentlyTyping) {
+                console.log("Already typing, will retry in 100ms");
+                setTimeout(() => processTypingQueue(), 100);
                 return;
             }
             
@@ -742,12 +745,29 @@
             // Hide after 5 seconds
             setTimeout(() => {
                 resultsOverlay.style.display = 'none';
+                // Signal backend that frontend is ready for next task
+                signalFrontendReady();
             }, 5000);
             
             // Also hide on click
             resultsOverlay.onclick = () => {
                 resultsOverlay.style.display = 'none';
+                // Signal backend that frontend is ready for next task
+                signalFrontendReady();
             };
+        }
+
+        function signalFrontendReady() {
+            fetch('http://localhost:8002/frontend_ready.json', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ready: true,
+                    timestamp: new Date().toISOString()
+                })
+            }).catch(() => {}); // Ignore errors if server not running
         }
 
         function updateStatistics(results) {

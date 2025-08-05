@@ -8,11 +8,43 @@ from gpt_guess import ask_gpt, extract_coords
 from scorer import compute_score
 from geopy.geocoders import Nominatim
 import json
+import os
 from status_tracker import update_status, update_thinking_status, update_progress_status
 print("[RUN_LOOP] All imports loaded successfully")
 
 # Initialize status
 update_status("idle", "Claude GeoGuessr Agent initialized - ready for geographic analysis", 0)
+
+def wait_for_frontend_ready():
+    """Wait for frontend to signal it's ready for next task"""
+    frontend_ready_file = "frontend_ready.json"
+    
+    # Remove any existing ready signal first
+    if os.path.exists(frontend_ready_file):
+        os.remove(frontend_ready_file)
+    
+    # Wait for the frontend to create the ready signal
+    max_wait_time = 30  # Maximum 30 seconds
+    wait_interval = 0.5  # Check every 0.5 seconds
+    elapsed = 0
+    
+    while elapsed < max_wait_time:
+        if os.path.exists(frontend_ready_file):
+            try:
+                with open(frontend_ready_file, 'r') as f:
+                    data = json.load(f)
+                    if data.get('ready'):
+                        # Clean up the signal file
+                        os.remove(frontend_ready_file)
+                        return True
+            except:
+                pass
+        
+        time.sleep(wait_interval)
+        elapsed += wait_interval
+    
+    print(f"[RUN_LOOP] Warning: Frontend ready timeout after {max_wait_time}s")
+    return False
 
 def geocode(place):
     print(f"[GEOCODE] Starting geocoding for: {place}")
@@ -211,6 +243,12 @@ Be conversational and show your reasoning process naturally. Always provide spec
                 "history": queue_manager.get_results()
             }, f, indent=2)
         print(f"[RUN_LOOP] results.json updated")
+        
+        # Wait for frontend to complete typewriter effect and results display
+        print(f"[RUN_LOOP] Waiting for frontend to finish displaying results...")
+        wait_for_frontend_ready()
+        print(f"[RUN_LOOP] Frontend ready signal received, continuing to next task")
+        
     else:
         # Only update status once when becoming idle, not every loop
         if not hasattr(geocode, 'idle_set'):
